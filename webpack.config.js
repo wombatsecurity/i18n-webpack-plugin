@@ -16,5 +16,11 @@ module.exports = {
 	},
 	plugins: [
 		new i18nPlugin( {} )
-	]
+	]/*,
+	entry: './test/simple.test.js',
+	output: {
+		path: path.join( __dirname, 'dest' ),
+		filename: "bundle.js",
+		chunkFilename: "[name].js"
+	}*/
 };

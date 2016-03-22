@@ -17,7 +17,8 @@ var units = [
 
 describe("i18n-webpack-plugin's basic feature set", function( ) {
 	it( 'pulls all en-us text into a single file', function( done ) {
-		$.ajax( 'en-us.i18n.json')
+		debugger;
+		$.ajax( './en-us.i18n.json')
 			.done( function( data ) {
 				expect( data['fixtures/unit1.text']['foo'] ).to.equal( 'bar' );
 				expect( data['fixtures/unit2.text']['hello'] ).to.equal( 'Hello, world!' );

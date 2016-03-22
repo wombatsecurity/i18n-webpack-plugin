@@ -32,7 +32,7 @@ module.exports = function(config) {
     
     
     // configure webpack for webpack pre-processor
-		webpack: require( './webpack.config.js' ),
+    webpack: require( './webpack.config.js' ),
 
 
     // test results reporter to use
@@ -60,7 +60,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS'],
+    browsers: ['PhantomJS','Chrome'],
 
 
     // Continuous Integration mode

@@ -10,8 +10,8 @@ var $ = require( 'jquery' );
 
 // retrieve fixtures
 var units = [
-	require( 'fixtures/unit1/text.i18n.json' ),
-	require( 'fixtures/unit2/text.i18n.json' )
+	require( 'fixtures/unit1/text' ),
+	require( 'fixtures/unit2/text' )
 ];
 
 

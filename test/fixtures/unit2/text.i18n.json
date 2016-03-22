@@ -1,0 +1,8 @@
+{
+	"en-us": {
+		"hello": "Hello, world!"
+	},
+	"es-mx": {
+		"foo": "¡Hola Mundo!"
+	}
+}

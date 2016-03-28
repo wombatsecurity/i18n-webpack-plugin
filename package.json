@@ -1,6 +1,6 @@
 {
   "name": "i18n-webpack-plugin",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Extract localized text stored in .i18n.json files and export it, collated by locale.",
   "main": "index.js",
   "scripts": {
@@ -14,10 +14,10 @@
     "webpack-sources": "0.1.1"
   },
   "devDependencies": {
-    "webpack": "1.12.14"
+    "webpack": "1.10.1"
   },
   "peerDependencies": {
-    "webpack": "^1.12.14"
+    "webpack": "^1.10.1"
   },
   "repository": {
     "type": "git",

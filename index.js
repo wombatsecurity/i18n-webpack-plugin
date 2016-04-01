@@ -8,6 +8,7 @@
 
 var async = require( "async" );
 var Chunk = require( "webpack/lib/Chunk" );
+var _ = require( 'lodash' );
 
 var Dictionary = require( './lib/i18nDictionary' );
 
@@ -19,8 +20,9 @@ var Dictionary = require( './lib/i18nDictionary' );
  * @constructor
  */
 function I18nPlugin( options ) {
-	if ( !options ) options = {};
-	this.options = options;
+	this.options = _.assign( {
+		file_name_pattern: 'i18n/[locale].i81n.json'
+	}, options );
 }
 
 // Static method for adding the loader
@@ -43,7 +45,7 @@ I18nPlugin.prototype.apply = function ( compiler ) {
 		 */
 
 		// the dictionary holds all of the extracted text
-		var dictionary = new Dictionary();
+		var dictionary = new Dictionary( options.file_name_pattern );
 
 		// a clone of every chunk in the compilation
 		var extractedChunks;
@@ -187,13 +189,13 @@ I18nPlugin.prototype.mergeModulesToInitialChunks = function ( chunk, checkedChun
 	}
 
 	// make sure we haven't already dealt with this chunk
-	if (checkedChunks.indexOf( chunk) ) {
+	if ( checkedChunks.indexOf( chunk ) ) {
 		return;
 	}
 
 	// intoChunk is provided, so we want to remove this chunk's modules and add them to
 	// the intoChunk
-	if (intoChunk) {
+	if ( intoChunk ) {
 		checkedChunks.push( chunk );
 		chunk.modules.slice().forEach( function ( module ) {
 			module.removeFromChunk( chunk );

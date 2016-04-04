@@ -21,7 +21,7 @@ var Dictionary = require( './lib/i18nDictionary' );
  */
 function I18nPlugin( options ) {
 	this.options = _.assign( {
-		file_name_pattern: 'i18n/[locale].i81n.json'
+		file_name_pattern: 'i18n/[locale].i18n'
 	}, options );
 }
 

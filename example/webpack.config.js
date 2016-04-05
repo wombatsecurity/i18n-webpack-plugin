@@ -11,19 +11,21 @@ module.exports = {
 		loaders: [
 			{
 				test: /\.i18n\.json$/,
-				loader: i18nPlugin.loader( )
+				loader: i18nPlugin.loader()
 			}
 		]
 	},
-	
+
 	plugins: [
-		new i18nPlugin( )
+		new i18nPlugin( {
+			shared_text_key: "shared"
+		} )
 	],
-	
+
 	'i18n-webpack-plugin-loader': {
 		root: 'example/src'
 	},
-	
+
 	entry: './example/src/entry.js',
 	output: {
 		path: path.join( __dirname, 'dest' ),

@@ -4,5 +4,8 @@
 	},
 	"es-mx": {
 		"hello": "hola"
+	},
+	"shared": {
+		"world": "world"
 	}
 }

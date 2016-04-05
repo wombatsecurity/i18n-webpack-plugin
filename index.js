@@ -21,7 +21,8 @@ var Dictionary = require( './lib/i18nDictionary' );
  */
 function I18nPlugin( options ) {
 	this.options = _.assign( {
-		file_name_pattern: 'i18n/[locale].i18n'
+		file_name_pattern: 'i18n/[locale].i18n',
+		shared_text_key: null
 	}, options );
 }
 
@@ -45,7 +46,7 @@ I18nPlugin.prototype.apply = function ( compiler ) {
 		 */
 
 		// the dictionary holds all of the extracted text
-		var dictionary = new Dictionary( options.file_name_pattern );
+		var dictionary = new Dictionary( options.file_name_pattern, options.shared_text_key );
 
 		// a clone of every chunk in the compilation
 		var extractedChunks;

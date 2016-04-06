@@ -16,14 +16,14 @@ var _ = require( 'lodash' );
  */
 function loader( source ) {
 	// parse query
-	var query = loaderUtils.parseQuery(this.query);
+	var query = loaderUtils.parseQuery( this.query );
 
 	// get the function generator
 	var fnGenerator = this.options[query.generator || 'i18nFnGenerator'] || defaultGetTextGenerator;
-	
+
 	// get the key function
 	var fnKey = this.options[query.key || 'i18nKeyFunction'] || defaultKeyFn;
-	
+
 	// get the rest of the options
 	var options = assign(
 		{
@@ -31,8 +31,14 @@ function loader( source ) {
 			shared_text_key: null
 		},
 		loaderUtils.parseQuery( this.query )
-	);	
-	
+	);
+
+	// override root with option from this.options
+	var root_opt = query.root_cfg || 'i18nRootPath';
+	if ( this.options[root_opt] ) {
+		options.root = this.options[root_opt];
+	}
+
 
 	// cacheable
 	if ( this.cacheable ) {
@@ -43,7 +49,7 @@ function loader( source ) {
 	this.addDependency( this.resourcePath );
 
 	// Set up default options & override them with other options
-	
+
 
 	// figure out the relative path & root from the root to the resource
 	var relative_path = path.relative( options.root, this.resourcePath ).replace( new RegExp( '\\' + path.sep, 'g' ), '/' ),

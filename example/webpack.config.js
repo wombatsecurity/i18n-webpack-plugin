@@ -1,6 +1,12 @@
 var path = require( 'path' );
 var i18nPlugin = require( '../index' );
 
+// create a new i18nPlugin object
+var i18n = new i18nPlugin( {
+	shared_text_key: 'shared',
+	root: 'example/src'
+} );
+
 module.exports = {
 	resolve: {
 		root: path.join( __dirname, 'test' ),
@@ -11,20 +17,14 @@ module.exports = {
 		loaders: [
 			{
 				test: /\.i18n\.json$/,
-				loader: i18nPlugin.loader()
+				loader: i18n.loader()
 			}
 		]
 	},
 
 	plugins: [
-		new i18nPlugin( {
-			shared_text_key: "shared"
-		} )
+		i18n
 	],
-
-	'i18n-webpack-plugin-loader': {
-		root: 'example/src'
-	},
 
 	entry: './example/src/entry.js',
 	output: {

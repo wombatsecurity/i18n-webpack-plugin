@@ -22,13 +22,20 @@ var Dictionary = require( './lib/i18nDictionary' );
 function I18nPlugin( options ) {
 	this.options = _.assign( {
 		file_name_pattern: 'i18n/[locale].i18n',
+		root: process.cwd(),
 		shared_text_key: null
 	}, options );
 }
 
 // Static method for adding the loader
 I18nPlugin.loader = function ( options ) {
-	return require.resolve( "./loader" ) + (options ? "?" + JSON.stringify( options ) : "");
+	return require.resolve( './loader' ) + (options ? "?" + JSON.stringify( options ) : "");
+};
+
+// Prototype method for adding the loader. Copies over some loader options
+I18nPlugin.prototype.loader = function( options ) {
+	var loader_options = _.assign( {}, this.options, options );
+	return require.resolve( './loader' ) + "?" + JSON.stringify( loader_options );
 };
 
 /**

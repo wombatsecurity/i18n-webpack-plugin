@@ -4,7 +4,7 @@ var i18nPlugin = require( '../index' );
 // create a new i18nPlugin object
 var i18n = new i18nPlugin( {
 	shared_text_key: 'shared',
-	root: 'example/src'
+	root: 'example'
 } );
 
 module.exports = {
@@ -30,5 +30,7 @@ module.exports = {
 	output: {
 		path: path.join( __dirname, 'dest' ),
 		filename: "bundle.js"
-	}
+	},
+
+	i18nRootPath: 'example/src'
 };

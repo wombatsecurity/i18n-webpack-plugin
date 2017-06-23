@@ -1,6 +1,7 @@
 {
 	"en-us": {
-		"hello": "hello"
+		"hello": "hello",
+		"there": "there"
 	},
 	"es-mx": {
 		"hello": "hola"

@@ -8,29 +8,33 @@ var i18n = new i18nPlugin( {
 } );
 
 module.exports = {
+	entry: './example/src/entry.js',
+
 	resolve: {
-		root: path.join( __dirname, 'test' ),
-		extensions: ['', '.webpack.js', '.web.js', '.js', '.i18n.json'],
+		modules: [
+			path.join( __dirname, 'src' ),
+			'node_modules'
+		],
+		extensions: ['.js']
 	},
 
 	module: {
-		loaders: [
+		rules: [
 			{
-				test: /\.i18n\.json$/,
-				loader: i18n.loader()
+				test: /\.i18n$/,
+				use: i18n.loader( {
+					root: 'example/src'
+				} )
 			}
-		]
+		],
 	},
 
 	plugins: [
 		i18n
 	],
 
-	entry: './example/src/entry.js',
 	output: {
 		path: path.join( __dirname, 'dest' ),
 		filename: "bundle.js"
-	},
-
-	i18nRootPath: 'example/src'
+	}
 };

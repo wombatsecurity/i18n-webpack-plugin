@@ -111,7 +111,7 @@ function processChunk( originalChunkList, chunkCopyList, dictionary, chunk, call
     let chunkCopy = chunkCopyList[originalChunkList.indexOf( chunk )];
 
     // loop through each module in the chunk
-    async.forEach( chunk.modules.slice(), function ( module, callback ) {
+    async.forEach( chunk.mapModules(), function ( module, callback ) {
         // get plugin metadata from plugin namespace
         let meta = module[NS];
 
@@ -144,7 +144,7 @@ function postProcessChunks( compilation, chunkCopyList, callback, err ) {
     //   2. remove all modules that have been merged
     chunkCopyList.forEach( function ( extractedChunk ) {
         if ( !isInitialOrHasNoParents( extractedChunk ) ) {
-            extractedChunk.modules.slice().forEach( function ( module ) {
+            extractedChunk.mapModules().forEach( function ( module ) {
                 extractedChunk.removeModule( module );
             } );
         }
@@ -168,7 +168,7 @@ function mergeNonInitialChunks( chunk, intoChunk, checkedChunks ) {
         } );
     } else if ( checkedChunks.indexOf( chunk ) < 0 ) {
         checkedChunks.push( chunk );
-        chunk.modules.slice().forEach( function ( module ) {
+        chunk.forEachModule( function ( module ) {
             intoChunk.addModule( module );
             module.addChunk( intoChunk );
         } );

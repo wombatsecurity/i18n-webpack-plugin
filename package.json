@@ -1,10 +1,14 @@
 {
   "name": "i18n-webpack-plugin",
-  "version": "3.2.1",
+  "version": "3.3.1",
+  "engines": {
+    "node": "6.11.1",
+    "npm": "3.10.10"
+  },
   "description": "Extract localized text stored in .i18n.json files and export it, collated by locale.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "webpack --config ./example/webpack.config.js"
   },
   "dependencies": {
     "async": "2.0.0-rc.1",
@@ -14,10 +18,10 @@
     "webpack-sources": "0.1.1"
   },
   "devDependencies": {
-    "webpack": "2.3.1"
+    "webpack": "3.3.0"
   },
   "peerDependencies": {
-    "webpack": "^2.3.1"
+    "webpack": "^3.3.0"
   },
   "repository": {
     "type": "git",

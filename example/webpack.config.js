@@ -4,7 +4,13 @@ var i18nPlugin = require( '../index' );
 // create a new i18nPlugin object
 var i18n = new i18nPlugin( {
 	shared_text_key: 'shared',
-	root: 'example'
+	root: 'example',
+	getTextGen: function ( path, key ) {
+		return "function ( ) { alert( window.getText(" + JSON.stringify( key ) + ") ); }";
+	},
+	keyFn: function ( relativePath ) {
+		return relativePath.replace( /\//g, '-' ).replace( '.i18n', '' );
+	}
 } );
 
 module.exports = {

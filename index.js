@@ -19,8 +19,8 @@ let nextId = 0;
  */
 function I18nPlugin( options ) {
     this.options = _.assign( {
-        file_name_pattern: 'i18n/[locale].i18n',
         root: process.cwd(),
+        file_name_pattern: 'i18n/[locale].i18n',        
         shared_text_key: null,
         id: nextId++
     }, options );
@@ -82,7 +82,7 @@ I18nPlugin.loader = function ( options ) {
  * Instance method to retrieve a loader for this specific plugin instance (copies options)
  */
 I18nPlugin.prototype.loader = function ( options ) {
-    return I18nPlugin.loader( _.assign( { id: this.id }, options ) );
+    return I18nPlugin.loader( _.assign( { id: this.id }, this.options, options ) );
 };
 
 /**

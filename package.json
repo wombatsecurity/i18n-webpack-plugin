@@ -2,8 +2,7 @@
   "name": "i18n-webpack-plugin",
   "version": "3.3.1",
   "engines": {
-    "node": "6.11.1",
-    "npm": "3.10.10"
+    "node": "^6.11.0"
   },
   "description": "Extract localized text stored in .i18n.json files and export it, collated by locale.",
   "main": "index.js",

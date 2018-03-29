@@ -34,13 +34,13 @@
 		"webpack-sources": "^1.1.0"
 	},
 	"devDependencies": {
-		"webpack": "^4.3.0",
+		"webpack": "^4.4.1",
 		"webpack-cli": "^2.0.0"
 	},
 	"peerDependencies": {
 		"webpack": "^4.0.0"
 	},
 	"engines": {
-		"node": "^6.11.0"
+		"node": ">=6.11.0"
 	}
 }

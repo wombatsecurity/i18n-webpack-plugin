@@ -3,7 +3,7 @@ This plugin uses its built-in loader to extract text from json files with locale
 destination directory, collated by locale.
 
 ## Testing
-Run `npm test` to do a test compilation in the "example" directory.
+Run `npm test` (or `yarn test`) to do a test compilation in the `example` directory.
 
 ## Options
 

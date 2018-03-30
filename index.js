@@ -1,182 +1,216 @@
+// @ts-check
 'use strict';
 
-// node module dependencies
-const fs = require( 'fs' ),
-    async = require( "async" ),
-    Chunk = require( "webpack/lib/Chunk" ),
-    _ = require( 'lodash' );
+// node builtin
+const { realpathSync }  = require( 'fs' );
 
 // package dependencies
-const Loader = require.resolve( "./loader" ),
-    Dictionary = require( './lib/i18nDictionary' );
+const async = require( 'async' );
+const Chunk = require( 'webpack/lib/Chunk' );
 
-// package-level consts/vars
-const NS = fs.realpathSync( __dirname );
+// only needed for typing
+const Compiler    = require( 'webpack/lib/Compiler' );
+const Compilation = require( 'webpack/lib/Compilation' );
+const Module      = require( 'webpack/lib/NormalModule' );
+
+// local dependencies
+const Loader     = require.resolve( './loader' );
+const Dictionary = require( './lib/i18nDictionary' );
+
+// package-level variables
+const NS = realpathSync( __dirname );
 let nextId = 0;
 
-/**
- * Main class for plugin
- */
-function I18nPlugin( options ) {
-    this.options = _.assign( {
-        root: process.cwd(),
-        file_name_pattern: 'i18n/[locale].i18n',        
-        shared_text_key: null,
-        id: nextId++
-    }, options );
+class I18nPlugin {
+	/**
+	 * ctor for I18nPlugin objects
+	 * @param {Object} options
+	 * @param {string} options.file_name_pattern
+	 * @param {string} options.root
+	 * @param {string} options.shared_text_key
+	 * @param {Function} options.getTextGen
+	 * @param {Function} options.keyFn
+	 * @param {string} [options.id]
+	 */
+	constructor( options ) {
+		this.options = Object.assign( {
+			root: process.cwd(),
+			file_name_pattern: 'i18n/[locale].i18n',
+			shared_text_key: null,
+			id: nextId++
+		}, options );
 
-    this.id = options.id;
-}
+		this.id = options.id;
+	}
 
-/**
- * Main plugin method
- */
-I18nPlugin.prototype.apply = function ( compiler ) {
-    const options = this.options;
+	/**
+	 * Main plugin method
+	 * @param {Compiler} compiler 
+	 */
+	apply( compiler ) {
+		const { options } = this;
 
-    /**
-     * Attach to a compilation to modify stuff
-     */
-    compiler.plugin( "this-compilation", ( compilation ) => {
+		// Attach to a compilation to modify stuff
+		compiler.hooks.thisCompilation.tap( I18nPlugin.name,
+			/** @param {Compilation} compilation */ ( compilation ) => {
 
-        // the dictionary holds all of the extracted text
-        const dictionary = new Dictionary( options.file_name_pattern, options.shared_text_key );
+			// the dictionary holds all of the extracted text
+			const dictionary = new Dictionary( options.file_name_pattern, options.shared_text_key );
 
-        // this array will hold a copy of all of the chunks in the compilation
-        let chunkCopyList;
+			// this array will hold a copy of all of the chunks in the compilation
+			let chunkCopyList;
 
-        // Attach to the normal-module-loader (runs before specific loaders)
-        compilation.plugin( "normal-module-loader", setUpNamespace );
+			// Attach to the normal-module-loader (runs before specific loaders)
+			compilation.hooks.normalModuleLoader.tap( I18nPlugin.name,
+				/** @param {Module} module */ ( loaderContext, module ) => {
 
-        /**
-         * In optimize step, we need to figure out whether this module is one of the ones we
-         * want to combine/extract.
-         */
-        compilation.plugin( "optimize-tree", ( originalChunkList, modules, callback ) => {
-            // Make a copy of each chunk in the list
-            chunkCopyList = copyChunks( originalChunkList );
+					// Set up a namespace for the plugin on the loaderContext.
+					// This lets the loader set meta-information on the module itself.
+					loaderContext[NS] = { setPluginContent( content ) {
+						if ( !module[NS] ) module[NS] = {};
+						module[NS].content = content;
+					} };
+				}
+			);
 
-            // Process each chunk
-            async.forEach( originalChunkList,
-                // iteratee
-                processChunk.bind( this, originalChunkList, chunkCopyList, dictionary ),
-                // callback
-                postProcessChunks.bind( this, compilation, chunkCopyList, callback )
-            );
-        } );
+			// We need to figure out whether this module is one we should to combine/extract
+			compilation.hooks.optimizeTree.tapAsync( I18nPlugin.name,
+				/** @param {Chunk[]} originalChunkList */ ( originalChunkList, _, callback ) => {
 
-        // Build the output files and add them as additional assets
-        compilation.plugin( "additional-assets", dictionary.buildAndAddAssets.bind( dictionary, compilation ) );
+					// Make a copy of each chunk in the list
+					chunkCopyList = copyChunks( originalChunkList );
 
-    } );
-};
+					// Process each chunk
+					async.forEach(
+						originalChunkList,
+						processChunk.bind( this, originalChunkList, chunkCopyList, dictionary ),
+						postProcessChunks.bind( this, compilation, chunkCopyList, callback )
+					);
+				}
+			);
 
-/**
- * Static method to retrieve loader
- */
-I18nPlugin.loader = function ( options ) {
-    return { loader: Loader, options: options };
-};
+			// Build the output files and add them as additional assets
+			compilation.hooks.additionalAssets.tapAsync(
+				I18nPlugin.name,
+				dictionary.buildAndAddAssets.bind( dictionary, compilation )
+			);
+		} );
+	}
 
-/**
- * Instance method to retrieve a loader for this specific plugin instance (copies options)
- */
-I18nPlugin.prototype.loader = function ( options ) {
-    return I18nPlugin.loader( _.assign( { id: this.id }, this.options, options ) );
-};
+	/**
+	 * Static method to retrieve loader
+	 */
+	static loader( options ) {
+		return { loader: Loader, options: options };
+	}
 
-/**
- * Set up a namespace for the plugin on the loaderContext. This lets the loader set
- * meta-information on the module itself.
- */
-function setUpNamespace( loaderContext, module ) {
-    loaderContext[NS] = {
-        setPluginContent: function ( content ) {
-            if ( !module[NS] ) {
-                module[NS] = {};
-            }
-            module[NS].content = content;
-        }
-    }
+	/**
+	 * Instance method to retrieve a loader for this specific plugin instance (copies options)
+	 */
+	loader( options ) {
+		return I18nPlugin.loader( Object.assign( { id: this.id }, this.options, options ) );
+	}
 }
 
 /**
  * Process a chunk during the optimize-tree phase. If loader has set content on the plugin 
  * namespace, add the module's content to the dictionary.
- * 
  * NOTE: the context is bound to the plugin & first 3 params are bound as well
+ * @param {Chunk[]} originalChunkList
+ * @param {Chunk[]} chunkCopyList
+ * @param {Dictionary} dictionary
+ * @param {Chunk} chunk
  */
 function processChunk( originalChunkList, chunkCopyList, dictionary, chunk, callback ) {
-    // look up the copy of the chunk
-    let chunkCopy = chunkCopyList[originalChunkList.indexOf( chunk )];
 
-    // loop through each module in the chunk
-    async.forEach( chunk.mapModules(), function ( module, callback ) {
-        // get plugin metadata from plugin namespace
-        let meta = module[NS];
+	// look up the copy of the chunk
+	let chunkCopy = chunkCopyList[originalChunkList.indexOf( chunk )];
 
-        // make sure plugin data was set (means this module was handled by loader)
-        if ( meta && meta.content ) {
-            dictionary.addModule( module.identifier(), meta.content, module, chunkCopy );
-        }
+	// loop through each module in the chunk
+	async.forEach( Array.from( chunk.modulesIterable ),
+		/** @param {Module} module */ ( module, callback ) => {
 
-        // call the callback
-        callback();
-    }, function ( err ) {
-        if ( err ) return callback( err );
-        callback();
-    } );
+			// get plugin metadata from plugin namespace
+			let meta = module[NS];
+
+			// make sure plugin data was set (means this module was handled by loader)
+			if ( meta && meta.content ) {
+				dictionary.addModule( module.identifier(), meta.content, module, chunkCopy );
+			}
+
+			// call the callback
+			callback();
+		}, ( err ) => {
+			if ( err ) return callback( err );
+			callback();
+		}
+	);
 }
 
 /**
  * After we process each chunk, we need to do some post-processing
+ * @param {Compilation} compilation
+ * @param {Chunk[]} chunkCopyList
  */
 function postProcessChunks( compilation, chunkCopyList, callback, err ) {
-    if ( err ) return callback( err );
+	if ( err ) return callback( err );
 
-    // once all content has been added to the extracted chunks....
-    //   1. merge non-initial chunks
-    chunkCopyList.forEach( function ( extractedChunk ) {
-        if ( isInitialOrHasNoParents( extractedChunk ) )
-            mergeNonInitialChunks( extractedChunk );
-    }, this );
+	// once all content has been added to the extracted chunks....
+	// 1. merge non-initial chunks
+	chunkCopyList.forEach( ( extractedChunk ) => {
+		if ( isInitialOrHasNoParents( extractedChunk ) )
+			mergeNonInitialChunks( extractedChunk );
+	} );
 
-    //   2. remove all modules that have been merged
-    chunkCopyList.forEach( function ( extractedChunk ) {
-        if ( !isInitialOrHasNoParents( extractedChunk ) ) {
-            extractedChunk.mapModules().forEach( function ( module ) {
-                extractedChunk.removeModule( module );
-            } );
-        }
-    } );
+	// 2. remove all modules that have been merged
+	chunkCopyList.forEach( ( extractedChunk ) => {
+		if ( !isInitialOrHasNoParents( extractedChunk ) ) {
+			for ( const module of extractedChunk.modulesIterable ) {
+				extractedChunk.removeModule( module );
+			}
+		}
+	} );
 
-    // optimize the extracted chunks
-    compilation.applyPlugins( "optimize-extracted-chunks", chunkCopyList );
+	// 3. optimize the extracted chunks
+	compilation.hooks.optimizeExtractedChunks.call( chunkCopyList );
 
-    callback();
+	callback();
 }
 
 /**
  * Merge all modules to the initial chunks
+ * @param {Chunk} chunk
+ * @param {Chunk} [intoChunk]
+ * @param {Chunk[]} [checkedChunks]
  */
 function mergeNonInitialChunks( chunk, intoChunk, checkedChunks ) {
-    if ( !intoChunk ) {
-        checkedChunks = [];
-        chunk.chunks.forEach( function ( c ) {
-            if ( isInitialOrHasNoParents( c ) ) return;
-            mergeNonInitialChunks( c, chunk, checkedChunks );
-        } );
-    } else if ( checkedChunks.indexOf( chunk ) < 0 ) {
-        checkedChunks.push( chunk );
-        chunk.forEachModule( function ( module ) {
-            intoChunk.addModule( module );
-            module.addChunk( intoChunk );
-        } );
-        chunk.chunks.forEach( function ( c ) {
-            if ( isInitialOrHasNoParents( c ) ) return;
-            mergeNonInitialChunks( c, intoChunk, checkedChunks );
-        } );
-    }
+
+	// triggered first time function is called
+	if ( !intoChunk ) {
+		const newCheckedChunks = [];
+
+		for ( const asyncChunk of chunk.getAllAsyncChunks() ) {
+			if ( !asyncChunk.isOnlyInitial() ) {
+				mergeNonInitialChunks( asyncChunk, chunk, newCheckedChunks );
+			}
+		}
+	}
+
+	// triggered when function is called recursively
+	else if ( !checkedChunks.includes( chunk ) ) {
+		const newCheckedChunks = checkedChunks.concat(chunk);
+
+		for ( const chunkModule of chunk.modulesIterable ) {
+			intoChunk.addModule( chunkModule );
+			chunkModule.addChunk( intoChunk );
+		}
+
+		for ( const asyncChunk of chunk.getAllAsyncChunks() ) {
+			if ( !asyncChunk.isOnlyInitial() ) {
+				mergeNonInitialChunks( asyncChunk, intoChunk, newCheckedChunks );
+			}
+		}
+	}
 };
 
 
@@ -185,37 +219,38 @@ function mergeNonInitialChunks( chunk, intoChunk, checkedChunks ) {
  * @param {Chunk} chunk 
  */
 function isInitialOrHasNoParents( chunk ) {
-    return chunk.isInitial() || chunk.parents.length === 0;
+	let parentCount = 0;
+
+	for ( const group of chunk.groupsIterable ) {
+		parentCount += group.getNumberOfParents();
+	}
+
+	return chunk.isOnlyInitial() || parentCount === 0;
 }
 
 /**
  * Make a copy of a list of chunks
- * @param {Chunk[]} originalChunkList 
- * @param {Chunk[]} chunkCopyList 
+ * @param {Chunk[]} originalChunkList
+ * @return {Chunk[]} copied list of chunks
  */
 function copyChunks( originalChunkList ) {
-    // create a new list of chunks to hold information identical to the original list of chunks
-    let chunkCopyList = originalChunkList.map( function ( original ) {
-        let copy = new Chunk( original.name );
-        copy.originalChunk = original;
-        copy.entrypoints = original.entrypoints;
-        return copy;
-    } );
 
-    // update copied chunks with links to other chunks
-    originalChunkList.forEach( function ( original, i ) {
-        let copy = chunkCopyList[i];
-        copy.index = i;
-        original.chunks.forEach( function ( i ) {
-            copy.addChunk( chunkCopyList[originalChunkList.indexOf( i )] );
-        } );
-        original.parents.forEach( function ( i ) {
-            copy.addParent( chunkCopyList[originalChunkList.indexOf( i )] );
-        } );
-    } );
+	// create a new list of chunks to hold information identical to the original list of chunks
+	let chunkCopyList = originalChunkList.map( ( orig ) => new Chunk( orig.name ) );
 
-    return chunkCopyList;
+	// update copied chunks with links to other chunks
+	originalChunkList.forEach( ( orig, i ) => {
+		const copy = chunkCopyList[i];
+
+		// these props don't exist on Chunk, so use bracket property accessors
+		copy['index'] = i;
+		copy['originalChunk'] = orig;
+
+		// add all of original chunk's groups to copy
+		for ( const group of orig.groupsIterable ) copy.addGroup( group );
+	} );
+
+	return chunkCopyList;
 }
 
-// Export I18nPlugin
 module.exports = I18nPlugin;

@@ -1,8 +1,8 @@
-var path = require( 'path' );
-var i18nPlugin = require( '../index' );
+const { join }   = require( 'path' );
+const i18nPlugin = require( '../index' );
 
 // create a new i18nPlugin object
-var i18n = new i18nPlugin( {
+const i18n = new i18nPlugin( {
 	shared_text_key: 'shared',
 	root: 'example',
 	getTextGen: function ( path, key ) {
@@ -14,33 +14,27 @@ var i18n = new i18nPlugin( {
 } );
 
 module.exports = {
-	entry: './example/src/entry.js',
+	entry: join( __dirname, 'src', 'entry' ),
 
 	resolve: {
 		modules: [
-			path.join( __dirname, 'src' ),
+			join( __dirname, 'src' ),
 			'node_modules'
 		],
-		extensions: ['.js']
+		extensions: [ '.js' ]
 	},
 
 	module: {
-		rules: [
-			{
-				test: /\.i18n$/,
-				use: i18n.loader( {
-					root: 'example/src'
-				} )
-			}
-		]
+		rules: [ {
+			test: /\.i18n$/,
+			use: i18n.loader( { root: 'example/src' } )
+		} ]
 	},
 
-	plugins: [
-		i18n
-	],
+	plugins: [ i18n ],
 
 	output: {
-		path: path.join( __dirname, 'dest' ),
+		path: join( __dirname, 'dist' ),
 		filename: "bundle.js"
 	}
 };

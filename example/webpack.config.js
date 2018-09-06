@@ -5,8 +5,10 @@ const i18nPlugin = require( '../index' );
 const i18n = new i18nPlugin( {
 	shared_text_key: 'shared',
 	root: 'example',
+	// omits the `should-be-omitted-by-locales` locale
+	locales: [ 'en-us', 'es-mx' ], // comment out this line to see default behavior
 	getTextGen: function ( path, key ) {
-		return "function ( ) { alert( window.getText(" + JSON.stringify( key ) + ") ); }";
+		return `function ( ) { alert( window.getText( "${key}" ) ); }`;
 	},
 	keyFn: function ( relativePath ) {
 		return relativePath.replace( /\//g, '-' ).replace( '.i18n', '' );
@@ -35,6 +37,6 @@ module.exports = {
 
 	output: {
 		path: join( __dirname, 'dist' ),
-		filename: "bundle.js"
+		filename: 'bundle.js'
 	}
 };

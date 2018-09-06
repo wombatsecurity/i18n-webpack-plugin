@@ -1,6 +1,5 @@
 # i18n-webpack-plugin
-This plugin uses its built-in loader to extract text from json files with locale-keyed text objects and exports them into the 
-destination directory, collated by locale.
+This plugin uses its built-in loader to extract text from json files with locale-keyed text objects and exports them into the destination directory, collated by locale.
 
 ## Testing
 Run `npm test` (or `yarn test`) to do a test compilation in the `example` directory.
@@ -29,3 +28,6 @@ This option should be passed a method that accepts two parameters (the relative 
 
 ### keyFn
 This option should be passed a method that accepts the relative path of the source file and outputs a key to uniquely identify the source file. The default is to simply return the path (including filename & extension).
+
+### locales
+This optional parameter is an array of locales you wish to include in your webpack build. If omitted, the plugin will generate a file for every locale key it encounters when loading json files.

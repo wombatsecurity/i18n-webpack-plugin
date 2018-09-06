@@ -28,6 +28,7 @@ class I18nPlugin {
 	 * @param {string} options.file_name_pattern
 	 * @param {string} options.root
 	 * @param {string} options.shared_text_key
+	 * @param {string[]} [options.locales]
 	 * @param {Function} options.getTextGen
 	 * @param {Function} options.keyFn
 	 * @param {string} [options.id]
@@ -55,7 +56,7 @@ class I18nPlugin {
 			/** @param {Compilation} compilation */ ( compilation ) => {
 
 			// the dictionary holds all of the extracted text
-			const dictionary = new Dictionary( options.file_name_pattern, options.shared_text_key );
+			const dictionary = new Dictionary( options.file_name_pattern, options.shared_text_key, options.locales );
 
 			// this array will hold a copy of all of the chunks in the compilation
 			let chunkCopyList;

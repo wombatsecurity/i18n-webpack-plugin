@@ -4,5 +4,8 @@
 	},
 	"es-mx": {
 		"bye": "adiós"
+	},
+	"should-be-omitted-by-locales": {
+		"bye": "omit me"
 	}
 }

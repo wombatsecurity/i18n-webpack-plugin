@@ -1,6 +1,6 @@
 {
 	"name": "i18n-webpack-plugin",
-	"version": "4.1.1",
+	"version": "4.2.0",
 	"description": "Extract localized text stored in .i18n.json files and export it, collated by locale.",
 	"keywords": [
 		"i18n",

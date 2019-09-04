@@ -46,7 +46,7 @@ class I18nPlugin {
 
 	/**
 	 * Main plugin method
-	 * @param {Compiler} compiler 
+	 * @param {Compiler} compiler
 	 */
 	apply( compiler ) {
 		const { options } = this;
@@ -114,7 +114,7 @@ class I18nPlugin {
 }
 
 /**
- * Process a chunk during the optimize-tree phase. If loader has set content on the plugin 
+ * Process a chunk during the optimize-tree phase. If loader has set content on the plugin
  * namespace, add the module's content to the dictionary.
  * NOTE: the context is bound to the plugin & first 3 params are bound as well
  * @param {Chunk[]} originalChunkList
@@ -159,8 +159,9 @@ function postProcessChunks( compilation, chunkCopyList, callback, err ) {
 	// once all content has been added to the extracted chunks....
 	// 1. merge non-initial chunks
 	chunkCopyList.forEach( ( extractedChunk ) => {
-		if ( isInitialOrHasNoParents( extractedChunk ) )
+		if ( isInitialOrHasNoParents( extractedChunk ) ) {
 			mergeNonInitialChunks( extractedChunk );
+		}
 	} );
 
 	// 2. remove all modules that have been merged
@@ -217,7 +218,7 @@ function mergeNonInitialChunks( chunk, intoChunk, checkedChunks ) {
 
 /**
  * Is a chunk an initial or leaf chunk?
- * @param {Chunk} chunk 
+ * @param {Chunk} chunk
  */
 function isInitialOrHasNoParents( chunk ) {
 	let parentCount = 0;

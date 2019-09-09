@@ -18,14 +18,6 @@ const i18n = new i18nPlugin( {
 module.exports = {
 	entry: join( __dirname, 'src', 'entry' ),
 
-	resolve: {
-		modules: [
-			join( __dirname, 'src' ),
-			'node_modules'
-		],
-		extensions: [ '.js' ]
-	},
-
 	module: {
 		rules: [ {
 			test: /\.i18n$/,
@@ -36,7 +28,7 @@ module.exports = {
 	plugins: [ i18n ],
 
 	output: {
-		path: join( __dirname, 'dist' ),
-		filename: 'bundle.js'
+		filename: 'bundle.js',
+		path: join( __dirname, 'dist' )
 	}
 };

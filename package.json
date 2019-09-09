@@ -28,14 +28,12 @@
 		"test": "webpack --config ./example/webpack.config.js"
 	},
 	"dependencies": {
-		"async": "^2.6.0",
 		"loader-utils": "^1.1.0",
-		"lodash": "^4.17.0",
-		"webpack-sources": "^1.1.0"
+		"lodash": "^4.17.0"
 	},
 	"devDependencies": {
 		"webpack": "^4.4.1",
-		"webpack-cli": "^2.0.0"
+		"webpack-cli": "^3.3.8"
 	},
 	"peerDependencies": {
 		"webpack": "^4.0.0"

@@ -32,7 +32,7 @@ module.exports = class I18nPlugin {
 
 	/**
 	 * Main plugin method
-	 * @param {import('webpack/lib/Compiler').default} compiler
+	 * @param {import('webpack/lib/Compiler')} compiler
 	 */
 	apply( compiler ) {
 		const { options } = this;
@@ -41,7 +41,7 @@ module.exports = class I18nPlugin {
 		compiler.hooks.thisCompilation.tap(
 			I18nPlugin.name,
 
-			/** @param {import('webpack/lib/Compilation').default} compilation */
+			/** @param {import('webpack/lib/Compilation')} compilation */
 			( compilation ) => {
 				const textByLocale = {};
 

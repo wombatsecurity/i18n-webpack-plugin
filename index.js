@@ -1,17 +1,11 @@
 // @ts-check
-'use strict';
-
-// node builtin
-const { realpathSync } = require( 'fs' );
-
-// package dependencies
 const _ = require( 'lodash' );
 
 // local dependencies
-const Loader = require.resolve( './loader' );
+const loader = require.resolve( './loader' );
 
 // package-level variables
-const NS = realpathSync( __dirname );
+const NS = __dirname;
 let nextId = 0;
 
 module.exports = class I18nPlugin {
@@ -54,9 +48,7 @@ module.exports = class I18nPlugin {
 				// Attach to the normal-module-loader (runs before specific loaders)
 				compilation.hooks.normalModuleLoader.tap(
 					I18nPlugin.name,
-
-					/** @param {import('webpack/lib/NormalModule').default} module */
-					( loaderContext, module ) => {
+					( loaderContext ) => {
 						// Set up a namespace for the plugin on the loaderContext.
 						loaderContext[NS] = {
 							/**
@@ -110,7 +102,7 @@ module.exports = class I18nPlugin {
 	 * Static method to retrieve loader
 	 */
 	static loader( options ) {
-		return { loader: Loader, options: options };
+		return { loader: loader, options: options };
 	}
 
 	/**
